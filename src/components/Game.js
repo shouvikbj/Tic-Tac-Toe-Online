@@ -101,30 +101,6 @@ const Game = () => {
       });
   };
 
-  const move = async (X, Y) => {
-    if (currentmove === Cookies.get("ttt-user")) {
-      await fetch(`${API}/game/${id}/${X}/${Y}/makemove/${symbol}`, {
-        method: "POST",
-        mode: "cors",
-      })
-        .then((response) => {
-          return response.json();
-        })
-        .then((data) => {
-          if (data.status !== "ok") {
-            alert("Cannot make the move!");
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-      await changeCurrentSymbol();
-      await changeCurrentMove();
-    } else {
-      alert("Wait for your turn!");
-    }
-  };
-
   const checkWinner = (board) => {
     for (let i = 0; i < 3; i++) {
       if (
@@ -150,14 +126,36 @@ const Game = () => {
     }
   };
 
+  const move = async (X, Y) => {
+    if (currentmove === Cookies.get("ttt-user")) {
+      await fetch(`${API}/game/${id}/${X}/${Y}/makemove/${symbol}`, {
+        method: "POST",
+        mode: "cors",
+      })
+        .then((response) => {
+          return response.json();
+        })
+        .then((data) => {
+          if (data.status !== "ok") {
+            alert("Cannot make the move!");
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+      await changeCurrentSymbol();
+      await changeCurrentMove();
+      await checkWinner(game);
+    } else {
+      alert("Wait for your turn!");
+    }
+  };
+
   useEffect(() => {
     if (Cookies.get("ttt-user")) {
       setUsername(Cookies.get("ttt-user"));
       setInterval(getCurrentMove, 1000);
       setInterval(getGameStatus, 1000);
-      setInterval(() => {
-        checkWinner(game);
-      }, 1000);
     } else {
       navigate("/login");
     }
